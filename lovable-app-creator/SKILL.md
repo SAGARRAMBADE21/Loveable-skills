@@ -1,6 +1,6 @@
 ---
 name: lovable-app-creator
-description: "Generates clickable Lovable.dev build URLs when users ask to build, create, or make any app, website, landing page, dashboard, or store. Uses the generate_lovable_url tool to create properly encoded URLs."
+description: "Generates clickable Lovable.dev build URLs when users ask to build, create, or make any app, website, landing page, dashboard, or store. Runs a command to URL-encode the prompt and returns the build URL."
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
@@ -9,35 +9,43 @@ metadata: {"openclaw":{"emoji":"💜"}}
 
 # Lovable App Creator
 
-You generate clickable Lovable.dev build URLs using the `generate_lovable_url` tool.
+When a user asks to build any app, website, or page, follow these exact steps:
 
-## Workflow
+## Step 1: Compose a prompt
 
-When a user asks to build any app, website, dashboard, store, or landing page:
+Write a short app description (200-500 characters). Include:
+- App name and type
+- Theme (dark/light) and colors
+- Pages and key components
+- "Use shadcn/ui, Tailwind CSS, Framer Motion. Mobile-first responsive."
 
-1. Compose a detailed prompt describing the app (theme, pages, features, tech stack)
-2. Call the `generate_lovable_url` tool with your composed prompt
-3. Include the returned URL in your reply to the user
+## Step 2: Generate the URL using run_command
 
-## Example
+Run this bash command, replacing YOUR_PROMPT with your composed prompt:
 
-User: "Build me a portfolio for a photographer, dark theme"
-
-You compose this prompt:
+```bash
+python3 -c "import urllib.parse; print('https://lovable.dev/?autosubmit=true#prompt=' + urllib.parse.quote('''YOUR_PROMPT'''))"
 ```
-Build a dark minimal photographer portfolio web app called NoirFrame. Near-black background, gold accents, Playfair Display headings, Inter body font. Pages: hero with full-bleed photo, gallery grid with lightbox, about page, contact form. Use shadcn/ui, Tailwind CSS, Framer Motion animations. Mobile-first responsive.
+
+Example:
+```bash
+python3 -c "import urllib.parse; print('https://lovable.dev/?autosubmit=true#prompt=' + urllib.parse.quote('''Build a dark minimal photographer portfolio called NoirFrame with hero, gallery grid with lightbox, about, and contact pages. Near-black background, gold accents, Playfair Display headings, Inter body. Use shadcn/ui, Tailwind CSS, Framer Motion. Mobile-first responsive.'''))"
 ```
 
-Then call `generate_lovable_url` with that prompt. Use the returned URL in your reply:
+This outputs a full URL like: `https://lovable.dev/?autosubmit=true#prompt=Build%20a%20dark%20minimal...`
+
+## Step 3: Reply to the user
+
+Use the URL from the command output in your reply:
 
 ```
-🚀 Your portfolio is ready to build!
+🚀 Your app is ready to build!
 
-📋 App: NoirFrame — Photographer Portfolio
-🎨 Style: Dark minimal, gold accents
+📋 App: [Name] — [Description]
+🎨 Style: [Theme details]
 
 👉 Click to create your app:
-[URL from generate_lovable_url tool]
+[PASTE THE URL FROM COMMAND OUTPUT HERE]
 
 🔗 Opens Lovable.dev and auto-builds your app. You need a Lovable account.
 Want me to adjust anything? 🔧
@@ -45,28 +53,8 @@ Want me to adjust anything? 🔧
 
 ## Rules
 
-- ALWAYS use the `generate_lovable_url` tool to create the URL
-- NEVER tell the user to copy/paste a prompt
-- NEVER write code (no HTML/CSS/JS files)
+- You MUST run the python3 command to generate the URL — do NOT try to URL-encode manually
+- NEVER tell the user to "copy/paste" a prompt into Lovable
+- NEVER write code files (no HTML, CSS, JS)
 - NEVER use browser tools
-- ALWAYS include the URL in your reply
-
-## Prompt Tips
-
-Include in your prompts:
-- App name and type
-- Color theme (dark/light, specific hex colors)
-- Typography (heading + body fonts)
-- Page list with key components
-- Tech: shadcn/ui, Tailwind CSS, Framer Motion
-- "Mobile-first responsive"
-
-## Handling Vague Requests
-
-If user says something short like "make me a website", ask max 3 questions:
-```
-I'd love to build that! Quick questions:
-1. 🎯 What's it for? (portfolio, store, blog, dashboard?)
-2. 🎨 Design vibe? (dark, light, colorful, minimal?)
-3. 📱 Key features? (gallery, contact form, user accounts?)
-```
+- ALWAYS include the generated URL in your reply
