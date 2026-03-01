@@ -9,13 +9,37 @@ metadata: {"openclaw":{"emoji":"💜"}}
 
 # Lovable App Creator
 
+## ⚠️ CRITICAL: How This Skill Works
+
+**YOU MUST follow these rules when this skill is invoked:**
+
+1. **DO NOT use browser tools.** Do not try to open lovable.dev in a browser. Do not try to navigate to any website.
+2. **DO NOT tell the user to manually go to lovable.dev.** You handle everything.
+3. **YOU MUST compose the prompt yourself** based on the user's request and the templates below.
+4. **YOU MUST URL-encode the prompt** and construct the build URL.
+5. **YOU MUST return the clickable build URL** directly in your message so the user just clicks it.
+
+**The output is ALWAYS a URL in this format:**
+```
+https://lovable.dev/?autosubmit=true#prompt=YOUR_URL_ENCODED_PROMPT_HERE
+```
+
+**Example — if user says "Build me a portfolio site":**
+1. You compose a detailed prompt (2000-5000 chars) using the templates below
+2. You URL-encode the entire prompt
+3. You reply with: "Here's your app! Click to build: https://lovable.dev/?autosubmit=true#prompt=Build%20a%20modern%20portfolio..."
+
+**That's it. No browser. No manual steps. Just compose → encode → send URL.**
+
+---
+
 ## Purpose
 
 Create complete, production-quality web applications on Lovable.dev directly from any OpenClaw channel (WhatsApp, Slack, Discord, Telegram, iMessage, etc.). The user describes what they want in plain language; this skill handles prompt engineering, architecture decisions, design system selection, and project creation via Lovable's Build-with-URL API.
 
 This is the **master orchestrator** skill. It composes prompts using the other Lovable skills (brand-enforcer, animation-choreographer, accessibility-guard, dashboard-pro, ecommerce-ui) when relevant, producing a comprehensive generation prompt that Lovable can execute in one shot.
 
-> **How it works**: Lovable.dev provides a Build-with-URL API that accepts a URL-encoded prompt (up to 50,000 characters) and optional reference images. This skill constructs the optimal prompt, generates the build URL, and delivers it to the user through their messaging channel.
+> **How it works**: Lovable.dev provides a Build-with-URL API that accepts a URL-encoded prompt (up to 50,000 characters) and optional reference images. This skill constructs the optimal prompt, generates the build URL, and delivers it to the user through their messaging channel. **No browser or web tools are needed — the URL is the product.**
 
 ## Inputs
 
