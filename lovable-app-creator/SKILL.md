@@ -1,6 +1,6 @@
 ---
 name: lovable-app-creator
-description: "Generates clickable Lovable.dev build URLs when users ask to build, create, or make any app, website, landing page, dashboard, or store. Runs a command to URL-encode the prompt and returns the build URL."
+description: "Generates clickable Lovable.dev build URLs when users ask to build, create, or make any app, website, landing page, dashboard, or store."
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
@@ -9,52 +9,53 @@ metadata: {"openclaw":{"emoji":"💜"}}
 
 # Lovable App Creator
 
-When a user asks to build any app, website, or page, follow these exact steps:
+When a user asks to build any app, website, or page:
 
 ## Step 1: Compose a prompt
 
-Write a short app description (200-500 characters). Include:
-- App name and type
-- Theme (dark/light) and colors
-- Pages and key components
-- "Use shadcn/ui, Tailwind CSS, Framer Motion. Mobile-first responsive."
+Write an app description (200-500 chars). Include app name, theme, colors, pages, features, and "Use shadcn/ui, Tailwind CSS, Framer Motion. Mobile-first responsive."
 
-## Step 2: Generate the URL using run_command
+## Step 2: Build the redirect URL
 
-Run this bash command, replacing YOUR_PROMPT with your composed prompt:
+Use the redirect server running on port 3456. Build this URL with your prompt as plain text (NO URL encoding needed — the server handles it):
 
-```bash
-python3 -c "import urllib.parse; print('https://lovable.dev/?autosubmit=true#prompt=' + urllib.parse.quote('''YOUR_PROMPT'''))"
+```
+http://localhost:3456/build?prompt=YOUR PROMPT TEXT HERE
 ```
 
-Example:
-```bash
-python3 -c "import urllib.parse; print('https://lovable.dev/?autosubmit=true#prompt=' + urllib.parse.quote('''Build a dark minimal photographer portfolio called NoirFrame with hero, gallery grid with lightbox, about, and contact pages. Near-black background, gold accents, Playfair Display headings, Inter body. Use shadcn/ui, Tailwind CSS, Framer Motion. Mobile-first responsive.'''))"
-```
-
-This outputs a full URL like: `https://lovable.dev/?autosubmit=true#prompt=Build%20a%20dark%20minimal...`
-
-## Step 3: Reply to the user
-
-Use the URL from the command output in your reply:
+## Step 3: Reply with the URL
 
 ```
 🚀 Your app is ready to build!
 
-📋 App: [Name] — [Description]
-🎨 Style: [Theme details]
+📋 App: [Name] — [Type]
+🎨 Style: [Theme]
 
-👉 Click to create your app:
-[PASTE THE URL FROM COMMAND OUTPUT HERE]
+👉 Click to create: http://localhost:3456/build?prompt=[YOUR PLAIN TEXT PROMPT]
 
-🔗 Opens Lovable.dev and auto-builds your app. You need a Lovable account.
-Want me to adjust anything? 🔧
+🔗 Auto-builds on Lovable.dev. You need a Lovable account.
+```
+
+## Example
+
+User: "Build me a portfolio for a photographer, dark theme"
+
+Reply:
+```
+🚀 Your portfolio is ready to build!
+
+📋 App: NoirFrame — Photographer Portfolio
+🎨 Style: Dark minimal, gold accents
+
+👉 Click to create:
+http://localhost:3456/build?prompt=Build a dark minimal photographer portfolio called NoirFrame with hero section, photo gallery grid with lightbox, about page, and contact form. Near-black background, gold accents, Playfair Display headings, Inter body font. Use shadcn/ui, Tailwind CSS, Framer Motion. Mobile-first responsive.
+
+🔗 Auto-builds on Lovable.dev. You need a Lovable account.
 ```
 
 ## Rules
 
-- You MUST run the python3 command to generate the URL — do NOT try to URL-encode manually
-- NEVER tell the user to "copy/paste" a prompt into Lovable
-- NEVER write code files (no HTML, CSS, JS)
-- NEVER use browser tools
-- ALWAYS include the generated URL in your reply
+- ALWAYS include the redirect URL in your reply
+- NEVER tell user to copy/paste
+- NEVER write code files
+- Keep prompts under 500 characters
