@@ -1,6 +1,6 @@
 ---
 name: lovable-app-creator
-description: "Create full Lovable.dev apps from natural language descriptions through any OpenClaw channel. Handles prompt engineering, project setup, and build URL generation."
+description: "Generates Lovable.dev build URLs from natural language app descriptions. Use when a user asks to build, create, or make any website, web app, landing page, dashboard, store, portfolio, or SaaS app. Outputs a clickable URL — never writes code or uses browser tools."
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
@@ -9,369 +9,130 @@ metadata: {"openclaw":{"emoji":"💜"}}
 
 # Lovable App Creator
 
-## ⚠️ CRITICAL: How This Skill Works
+## What This Skill Does
 
-**YOU MUST follow these rules when this skill is invoked:**
+This skill takes a user's app description and outputs a **Lovable.dev build URL**. That's it.
 
-1. **DO NOT use browser tools.** Do not try to open lovable.dev in a browser. Do not try to navigate to any website.
-2. **DO NOT tell the user to manually go to lovable.dev.** You handle everything.
-3. **YOU MUST compose the prompt yourself** based on the user's request and the templates below.
-4. **YOU MUST URL-encode the prompt** and construct the build URL.
-5. **YOU MUST return the clickable build URL** directly in your message so the user just clicks it.
+**Your ONLY job:**
+1. Read the user's request
+2. Compose a detailed prompt (2000-5000 chars)
+3. URL-encode the prompt
+4. Reply with the clickable URL
 
-**The output is ALWAYS a URL in this format:**
-```
-https://lovable.dev/?autosubmit=true#prompt=YOUR_URL_ENCODED_PROMPT_HERE
-```
+## Rules
 
-**Example — if user says "Build me a portfolio site":**
-1. You compose a detailed prompt (2000-5000 chars) using the templates below
-2. You URL-encode the entire prompt
-3. You reply with: "Here's your app! Click to build: https://lovable.dev/?autosubmit=true#prompt=Build%20a%20modern%20portfolio..."
+- **NEVER write code** (no HTML, CSS, JavaScript, no files)
+- **NEVER use browser tools** (no navigating to websites)
+- **NEVER tell user to go to lovable.dev manually**
+- **NEVER create files** in the workspace
+- **ALWAYS output a clickable URL** in your reply
 
-**That's it. No browser. No manual steps. Just compose → encode → send URL.**
-
----
-
-## Purpose
-
-Create complete, production-quality web applications on Lovable.dev directly from any OpenClaw channel (WhatsApp, Slack, Discord, Telegram, iMessage, etc.). The user describes what they want in plain language; this skill handles prompt engineering, architecture decisions, design system selection, and project creation via Lovable's Build-with-URL API.
-
-This is the **master orchestrator** skill. It composes prompts using the other Lovable skills (brand-enforcer, animation-choreographer, accessibility-guard, dashboard-pro, ecommerce-ui) when relevant, producing a comprehensive generation prompt that Lovable can execute in one shot.
-
-> **How it works**: Lovable.dev provides a Build-with-URL API that accepts a URL-encoded prompt (up to 50,000 characters) and optional reference images. This skill constructs the optimal prompt, generates the build URL, and delivers it to the user through their messaging channel. **No browser or web tools are needed — the URL is the product.**
-
-## Inputs
-
-The user provides a natural language description through their messaging channel. The skill extracts the following from the conversation:
-
-| Parameter       | Extracted From              | Required | Fallback                    |
-|-----------------|-----------------------------|----------|-----------------------------|
-| `app_idea`      | User's description          | yes      | —                           |
-| `app_type`      | Classification of idea      | auto     | landing_page                |
-| `brand_style`   | User's aesthetic preference | auto     | startup                     |
-| `features`      | Specific features mentioned | auto     | Core features only          |
-| `integrations`  | Backend/API needs           | auto     | None                        |
-| `reference_urls`| Example sites/screenshots   | no       | None                        |
-
-## App Type Classification
-
-Classify the user's request into one of these categories to determine which sub-skills and templates to activate:
-
-| App Type         | Trigger Keywords                                    | Sub-Skills Activated                          |
-|------------------|-----------------------------------------------------|-----------------------------------------------|
-| `landing_page`   | landing, website, homepage, portfolio, one-page      | brand-enforcer, animation-choreographer       |
-| `dashboard`      | dashboard, analytics, admin, panel, monitoring       | dashboard-pro, brand-enforcer                 |
-| `ecommerce`      | store, shop, products, cart, checkout, e-commerce     | ecommerce-ui, brand-enforcer                  |
-| `saas`           | SaaS, app, platform, tool, subscription, users       | brand-enforcer, accessibility-guard           |
-| `blog`           | blog, articles, posts, content, magazine              | brand-enforcer, animation-choreographer       |
-| `portfolio`      | portfolio, showcase, gallery, work, projects          | brand-enforcer, animation-choreographer       |
-| `form_app`       | survey, form, questionnaire, registration, booking   | accessibility-guard, brand-enforcer           |
-| `social`         | social, feed, community, forum, chat                 | brand-enforcer, accessibility-guard           |
-| `custom`         | (anything else)                                       | brand-enforcer                                |
-
-## Workflow
-
-### Phase 1: Understand the Request
-
-When the user sends a message like _"Build me a fitness tracking app with workout logging, progress charts, and a dark theme"_, decompose it:
-
-1. **Extract core idea**: Fitness tracking app → `saas` type.
-2. **Identify features**: Workout logging, progress charts.
-3. **Detect design preferences**: Dark theme → dark color scheme.
-4. **Check for integrations**: Charts → Recharts. User data → Supabase Auth + Database.
-5. **Identify reference material**: If user shares screenshots or URLs, capture them as `reference_urls`.
-
-If the description is vague (under 20 words), ask clarifying questions:
+## URL Format
 
 ```
-I'd love to build that! To create the best app, I need a few details:
-
-1. 🎯 What's the primary purpose? (e.g., track workouts, sell products, show portfolio)
-2. 👥 Who will use it? (e.g., individuals, teams, customers)
-3. 🎨 Any design preference? (e.g., dark mode, colorful, minimal, professional)
-4. 📱 Key features? (e.g., user accounts, charts, payments, forms)
-5. 🌐 Any websites you like the look of? (share links for reference)
+https://lovable.dev/?autosubmit=true#prompt={URL_ENCODED_PROMPT}
 ```
 
-### Phase 2: Architect the Application
+## Complete Working Example
 
-Based on the extracted information, determine the technical architecture:
+**User says:** "Build me a portfolio site for a UI designer, dark minimal theme"
 
-**Page Structure** — Define the pages and navigation:
-
-| App Type      | Default Pages                                                    |
-|---------------|------------------------------------------------------------------|
-| landing_page  | Hero, Features, Testimonials, Pricing, CTA, Footer               |
-| dashboard     | Login, Dashboard Overview, Detail Views, Settings                 |
-| ecommerce     | Storefront, Product Listing, Product Detail, Cart, Checkout       |
-| saas          | Landing, Login/Signup, Dashboard, Settings, Billing               |
-| blog          | Home, Article List, Article Detail, About, Categories             |
-| portfolio     | Hero, Projects Grid, Project Detail, About, Contact               |
-| form_app      | Landing, Form Steps, Confirmation, Admin View                     |
-| social        | Feed, Profile, Notifications, Messages, Settings                  |
-
-**Tech Stack Decisions** (all within Lovable's ecosystem):
-
-| Need                | Solution                              |
-|---------------------|---------------------------------------|
-| UI Components       | shadcn/ui + Tailwind CSS              |
-| Authentication      | Supabase Auth                         |
-| Database            | Supabase (PostgreSQL)                 |
-| File Storage        | Supabase Storage                      |
-| Charts / Data Viz   | Recharts                              |
-| Animations          | Framer Motion                         |
-| Payments            | Stripe (via Supabase Edge Functions)  |
-| Icons               | Lucide React                          |
-| Routing             | React Router DOM                      |
-| State Management    | React Query (TanStack Query)          |
-| Forms               | React Hook Form + Zod validation      |
-
-### Phase 3: Compose the Prompt
-
-Build a comprehensive prompt (max 50,000 chars, target 2,000–5,000 for optimal results). Structure:
-
+**You compose this prompt:**
 ```
-[APP OVERVIEW]
-Build a {app_type} called "{app_name}" that {core_purpose}. 
-Target audience: {audience}.
+Build a modern, minimal UI designer portfolio website with the following specifications:
 
-[DESIGN SYSTEM]
-{Output from brand-enforcer sub-skill}
-- Style: {brand_style}
-- Colors: {palette}
-- Fonts: {fonts}
-- Border radius: {radius}
+DESIGN:
+- Dark theme with #0a0a0f background, #ffffff text, #6366f1 accent color
+- Inter font for body, clean sans-serif
+- Rounded corners (8px), subtle shadows, glassmorphism cards
+- Smooth scroll behavior
 
-[PAGE STRUCTURE]
-{For each page:}
-Page: {page_name}
-- Layout: {layout_description}
-- Components: {component_list}
-- Interactions: {interaction_descriptions}
+PAGES:
+1. Hero: Large name/title, brief tagline, scroll-down indicator
+2. Projects Grid: 3-column responsive grid, hover effects showing project details
+3. About: Short bio, skills list, tools used
+4. Contact: Simple contact form with name, email, message fields
 
-[FEATURES]
-{Numbered list of specific features with implementation details}
-
-[ANIMATIONS]
-{Output from animation-choreographer sub-skill if activated}
-
-[ACCESSIBILITY]
-{Output from accessibility-guard sub-skill if activated}
-
-[BACKEND INTEGRATION]
-{Supabase tables, Auth requirements, Edge Functions needed}
-
-[RESPONSIVE DESIGN]
-- Desktop: {desktop_layout}
-- Tablet: {tablet_adaptations}
-- Mobile: {mobile_adaptations}
-
-[TECHNICAL CONSTRAINTS]
-- Use shadcn/ui for all UI components
-- Use Recharts for any charts/graphs
-- Use Framer Motion for animations
-- Use React Router DOM for routing
-- Use React Hook Form + Zod for form validation
-- All images should have alt text
-- All interactive elements need focus states
-- Support prefers-reduced-motion
+TECH:
+- Use shadcn/ui components and Tailwind CSS
+- Use Framer Motion for entrance animations and hover effects
 - Mobile-first responsive design
+- All images have alt text
 ```
 
-### Phase 4: Generate Build URL
-
-Construct the Lovable Build-with-URL:
-
-```
-Base URL: https://lovable.dev/
-Parameters:
-  ?autosubmit=true
-  #prompt={URL_ENCODED_PROMPT}
-  &images={URL_ENCODED_IMAGE_1}  (if reference images provided)
-  &images={URL_ENCODED_IMAGE_2}  (if additional images)
-```
-
-**URL Construction Rules**:
-- Prompt must be URL-encoded (spaces → %20, special chars encoded).
-- Maximum prompt length: 50,000 characters.
-- Maximum 10 image URLs.
-- Image URLs must be publicly accessible (JPEG, PNG, or WebP).
-- Image URLs themselves must be URL-encoded.
-
-### Phase 5: Deliver to User
-
-Send the response back through the user's channel:
-
-```
-🚀 Your {app_type} is ready to build!
-
-📋 App: {app_name}
-🎨 Style: {brand_style} with {color_description}
-📱 Pages: {page_count} pages
-⚡ Features: {feature_summary}
-
-👉 Click to create your app:
-{generated_lovable_url}
-
-This will open Lovable.dev and automatically start building your app.
-You'll be able to preview it and make changes in real-time.
-
-Want me to adjust anything before you build?
-```
-
-### Phase 6: Iterative Refinement
-
-If the user wants changes after reviewing:
-
-1. **Design changes**: "Make it darker" → adjust palette, regenerate URL.
-2. **Feature additions**: "Add user authentication" → add Supabase Auth to prompt.
-3. **Layout changes**: "Make the hero bigger" → adjust hero section in prompt.
-4. **Style changes**: "Make it more playful" → switch brand style, regenerate.
-
-Each refinement regenerates the build URL with the updated prompt.
-
-## Prompt Templates by App Type
-
-> See `references/prompt-templates.md` for complete, ready-to-use prompt templates for each app type.
-
-## Conversation Flow Examples
-
-### Example 1: Quick Build (Minimal Input)
-
-**User**: "Build me a portfolio website"
-
-**Agent response**:
-```
-I'll create a stunning portfolio for you! A few quick questions:
-
-1. 🎯 What do you do? (designer, developer, photographer, etc.)
-2. 🎨 Design vibe? (minimal, bold, creative, dark)
-3. 📸 How many projects to showcase?
-```
-
-**User**: "I'm a UI designer, make it minimal and clean, about 8 projects"
-
-**Agent**: _(composes prompt with brand-enforcer=minimalist, animation-choreographer=subtle+smooth, generates URL)_
+**You URL-encode it and reply:**
 
 ```
 🚀 Your portfolio is ready to build!
 
-📋 App: UI Design Portfolio
-🎨 Style: Minimalist — neutral palette, Inter font, clean grid
-📱 Pages: 4 (Hero, Projects Grid, Project Detail, Contact)
-⚡ Features: Project grid with hover previews, smooth scroll animations, contact form, responsive
+📋 App: UI Designer Portfolio
+🎨 Style: Dark minimal — #0a0a0f bg, indigo accents, Inter font
+📱 Pages: Hero, Projects, About, Contact
 
-👉 Click to create:
-https://lovable.dev/?autosubmit=true#prompt=Build%20a%20minimalist%20UI%20designer%20portfolio...
+👉 Click to create your app:
+https://lovable.dev/?autosubmit=true#prompt=Build%20a%20modern%2C%20minimal%20UI%20designer%20portfolio%20website%20with%20the%20following%20specifications%3A%0A%0ADESIGN%3A%0A-%20Dark%20theme%20with%20%230a0a0f%20background%2C%20%23ffffff%20text%2C%20%236366f1%20accent%20color%0A-%20Inter%20font%20for%20body%2C%20clean%20sans-serif%0A-%20Rounded%20corners%20(8px)%2C%20subtle%20shadows%2C%20glassmorphism%20cards%0A-%20Smooth%20scroll%20behavior%0A%0APAGES%3A%0A1.%20Hero%3A%20Large%20name%2Ftitle%2C%20brief%20tagline%2C%20scroll-down%20indicator%0A2.%20Projects%20Grid%3A%203-column%20responsive%20grid%2C%20hover%20effects%20showing%20project%20details%0A3.%20About%3A%20Short%20bio%2C%20skills%20list%2C%20tools%20used%0A4.%20Contact%3A%20Simple%20contact%20form%20with%20name%2C%20email%2C%20message%20fields%0A%0ATECH%3A%0A-%20Use%20shadcn%2Fui%20components%20and%20Tailwind%20CSS%0A-%20Use%20Framer%20Motion%20for%20entrance%20animations%20and%20hover%20effects%0A-%20Mobile-first%20responsive%20design%0A-%20All%20images%20have%20alt%20text
 
-Want me to adjust anything?
+🔗 This opens Lovable.dev and auto-builds your app. You need a Lovable account.
+Want me to adjust anything? 🔧
 ```
 
-### Example 2: Complex Build (Detailed Input)
+## Prompt Composition Guide
 
-**User**: "I need a SaaS dashboard for my HR analytics startup called PeopleMetrics. Dark theme, shows headcount trends, attrition rates, hiring funnel, employee satisfaction scores. Need user login and team workspaces."
+Structure your prompt in this order:
 
-**Agent**: _(classifies as dashboard+saas, activates dashboard-pro+brand-enforcer+accessibility-guard, composes full prompt with Supabase Auth, Recharts, dark-operational theme)_
+1. **App Overview**: What it is, who it's for
+2. **Design**: Theme (dark/light), colors (hex), fonts, border radius, style
+3. **Pages**: List each page with its components and layout
+4. **Features**: Specific functionality (auth, payments, charts, etc.)
+5. **Tech Stack**: shadcn/ui, Tailwind CSS, Recharts, Framer Motion, Supabase
+6. **Responsive**: Mobile-first, breakpoints
+
+### Design Defaults by App Type
+
+| App Type | Colors | Font | Style |
+|----------|--------|------|-------|
+| Landing Page | Dark bg, vibrant accent | Inter | Clean, modern |
+| Dashboard | Slate-900 bg, cyan/green accents | Inter | Data-dense |
+| E-commerce | Based on product type | System | Trust-focused |
+| SaaS | Professional, brand colors | Inter | Functional |
+| Portfolio | Minimal, 2-3 colors | Inter | Spacious |
+| Blog | Light/dark, readable | Georgia/Inter | Content-first |
+
+### Tech Stack by Feature
+
+| User Need | Add to Prompt |
+|-----------|---------------|
+| User accounts | "Use Supabase Auth with email login" |
+| Database | "Use Supabase PostgreSQL for data storage" |
+| Charts | "Use Recharts for data visualization" |
+| Animations | "Use Framer Motion for animations" |
+| Payments | "Integrate Stripe for payments" |
+| Forms | "Use React Hook Form with Zod validation" |
+| File uploads | "Use Supabase Storage for file uploads" |
+
+## Handling Vague Requests
+
+If the user says something short like "make me a website", ask:
 
 ```
-🚀 Your HR analytics dashboard is ready to build!
+I'd love to build that! Quick questions:
 
-📋 App: PeopleMetrics
-🎨 Style: Technical dark theme — slate-950, cyan accents
-📱 Pages: 5 (Login, Dashboard, Employees, Reports, Settings)
-⚡ Features: 
-  - Supabase Auth (email + Google SSO)
-  - 4 KPI cards (headcount, attrition, open roles, satisfaction)
-  - Recharts: headcount trend, hiring funnel, attrition breakdown
-  - Data table with sorting, filtering, pagination
-  - Team workspaces with role-based access
-  - Collapsible sidebar navigation
-  - Date range picker with presets
-
-🔧 Backend: Supabase (Auth + PostgreSQL + Row Level Security)
-📊 Charts: Recharts with dark-operational palette
-
-👉 Click to create:
-https://lovable.dev/?autosubmit=true#prompt=Build%20an%20HR%20analytics%20dashboard...
-
-This is a complex app — Lovable will scaffold the entire thing. 
-You can refine each page in Lovable's editor after generation.
-
-Want me to adjust the scope, features, or design?
+1. 🎯 What's it for? (portfolio, business, store, blog?)
+2. 🎨 Design preference? (dark, light, colorful, minimal?)
+3. 📱 Key features? (contact form, gallery, user accounts?)
 ```
 
-### Example 3: E-Commerce Build
-
-**User**: "Create a luxury candle store with a dark elegant theme"
-
-**Agent**: _(classifies as ecommerce, activates ecommerce-ui with store_type=artisan_goods + brand_tone=luxury, brand-enforcer=editorial, animation-choreographer=subtle+cinematic)_
-
-```
-🚀 Your luxury candle store is ready to build!
-
-📋 App: Luxury Candle Store
-🎨 Style: Luxury dark — #0a0e1a background, gold accents, Playfair Display headings
-📱 Pages: 5 (Storefront, Collection, Product Detail, Cart, Checkout)
-⚡ Features:
-  - Hero with featured collection
-  - Product grid with hover zoom + quick-add
-  - Product detail with image gallery + scent notes
-  - Slide-in cart drawer
-  - Multi-step checkout with Stripe
-  - Newsletter signup
-
-👉 Click to create:
-https://lovable.dev/?autosubmit=true#prompt=Build%20a%20luxury%20candle%20e-commerce...
-```
-
-## Sub-Skill Composition
-
-When composing the final prompt, this skill conditionally includes output from other Lovable skills:
-
-| Condition                              | Sub-Skill Invoked           | Output Included               |
-|----------------------------------------|----------------------------|-------------------------------|
-| Always                                 | lovable-brand-enforcer      | Design tokens, colors, fonts  |
-| User wants animations / not disabled   | lovable-animation-choreographer | Timing, entrances, hovers  |
-| App type = dashboard                   | lovable-dashboard-pro       | Layout, charts, KPIs          |
-| App type = ecommerce                   | lovable-ecommerce-ui        | Product layouts, cart, checkout |
-| Accessibility level specified          | lovable-accessibility-guard | WCAG constraints              |
+Keep it to 3 questions max. Don't over-ask.
 
 ## Guardrails
 
-- Never generate a prompt exceeding 50,000 characters. Target 2,000–5,000 for best results.
-- Never include sensitive data (API keys, passwords, personal info) in the build URL — prompts are visible in the URL hash.
-- Always ask clarifying questions if the user's description is under 20 words.
-- Never promise features Lovable cannot deliver (native mobile apps, blockchain, ML model training).
-- Always inform the user that the generated URL will open Lovable.dev and require a Lovable account.
-- If the user provides reference images, verify they are publicly accessible URLs before including.
-- Do not auto-submit the URL on behalf of the user — always let the user click the link themselves.
-- Always include responsive design instructions in the prompt.
-- For apps requiring authentication, always include Supabase Auth in the prompt.
-- For apps requiring payments, always include Stripe integration instructions.
+- Prompt must be under 50,000 characters (target 2000-5000)
+- Never include API keys, passwords, or personal data in the URL
+- The prompt is visible in the URL hash — keep it professional
+- Users need their own Lovable.dev account
+- Lovable builds React web apps only — no native mobile, no blockchain
 
-## Failure Handling
+## Reference Files
 
-| Problem | Recovery |
-|---------|----------|
-| User description too vague | Ask the 5 clarifying questions (purpose, audience, design, features, references). |
-| Generated prompt too long (>50K chars) | Simplify by removing detailed animation specs and reference docs. Focus on core structure and features. |
-| User shares non-public image URLs | Inform user: "I can't use that image as a reference since it's not publicly accessible. Can you share a public URL or describe what you want?" |
-| User wants unsupported feature | "Lovable builds React web apps. For {feature}, you'd need to add that after generation using {alternative}. Want me to include the closest web equivalent?" |
-| Build URL doesn't work | "Try opening this link in a browser where you're logged into Lovable.dev. If you don't have an account, sign up at lovable.dev first." |
-| User wants changes after building | "You can refine directly in Lovable's editor! Just describe the change in Lovable's chat. Or tell me what to adjust and I'll generate a new build URL." |
-
-## External Endpoints
-
-This skill constructs URLs pointing to `https://lovable.dev/`. It does not make API calls or transmit data to any endpoint. The user manually clicks the generated link.
-
-## Security & Privacy
-
-- This skill generates URLs only — it does not execute code or make API requests.
-- Build prompts may contain the user's app idea; no sensitive personal data should be included.
-- Reference image URLs are included in the build URL fragment (hash) which is not sent to servers in HTTP requests.
-- Users must have their own Lovable.dev account to use the generated URLs.
-
-## Trust Statement
-
-This skill contains no executable scripts. It produces Lovable Build-with-URL links from natural language descriptions. It does not access the filesystem, execute commands, or communicate with external services. The user retains full control by choosing whether to click the generated link.
+For detailed prompt templates by app type, see `{baseDir}/references/prompt-templates.md`.
+For channel-specific formatting (WhatsApp, Slack, etc.), see `{baseDir}/references/conversation-flows.md`.
