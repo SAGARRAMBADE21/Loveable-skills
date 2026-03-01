@@ -4,7 +4,7 @@ description: "Generate high-converting, visually rich e-commerce UIs in Lovable 
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
-metadata: {"openclaw":{"emoji":"🛒","requires":{"config":["lovable.enabled"]}}}
+metadata: {"openclaw":{"emoji":"🛒"}}
 ---
 
 # Lovable E-Commerce UI

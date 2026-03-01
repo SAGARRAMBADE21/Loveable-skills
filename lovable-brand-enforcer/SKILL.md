@@ -4,7 +4,7 @@ description: "Enforce consistent brand identity across all Lovable UI generation
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
-metadata: {"openclaw":{"emoji":"🎯","requires":{"config":["lovable.enabled"]}}}
+metadata: {"openclaw":{"emoji":"🎯"}}
 ---
 
 # Lovable Brand Enforcer

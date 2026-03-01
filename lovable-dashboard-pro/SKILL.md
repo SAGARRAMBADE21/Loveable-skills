@@ -4,7 +4,7 @@ description: "Generate data-rich, interactive analytics dashboards in Lovable wi
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
-metadata: {"openclaw":{"emoji":"📊","requires":{"config":["lovable.enabled"]}}}
+metadata: {"openclaw":{"emoji":"📊"}}
 ---
 
 # Lovable Dashboard Pro

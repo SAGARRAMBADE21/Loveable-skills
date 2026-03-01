@@ -4,7 +4,7 @@ description: "Ensure all Lovable UI generations meet WCAG 2.1 AA/AAA accessibili
 homepage: https://lovable.dev
 user-invocable: true
 disable-model-invocation: false
-metadata: {"openclaw":{"emoji":"♿","requires":{"config":["lovable.enabled"]}}}
+metadata: {"openclaw":{"emoji":"♿"}}
 ---
 
 # Lovable Accessibility Guard
