@@ -15,17 +15,36 @@ This skill takes a user's app description and outputs a **Lovable.dev build URL*
 
 **Your ONLY job:**
 1. Read the user's request
-2. Compose a detailed prompt (2000-5000 chars)
-3. URL-encode the prompt
+2. Compose a detailed prompt (500-2000 chars)
+3. Use the helper script to generate the URL
 4. Reply with the clickable URL
 
 ## Rules
 
 - **NEVER write code** (no HTML, CSS, JavaScript, no files)
 - **NEVER use browser tools** (no navigating to websites)
-- **NEVER tell user to go to lovable.dev manually**
+- **NEVER tell user to copy/paste the prompt manually**
 - **NEVER create files** in the workspace
 - **ALWAYS output a clickable URL** in your reply
+
+## How to Generate the URL
+
+**Step 1**: Write your composed prompt to a temp file:
+```bash
+cat << 'PROMPT_EOF' > /tmp/lovable_prompt.txt
+Build a modern portfolio website...
+(your full composed prompt here)
+PROMPT_EOF
+```
+
+**Step 2**: Generate the URL using the helper script:
+```bash
+python3 {baseDir}/scripts/generate_url.py --file /tmp/lovable_prompt.txt
+```
+
+**Step 3**: Copy the output URL and include it in your reply to the user.
+
+This is the ONLY correct workflow. Do NOT try to URL-encode manually.
 
 ## URL Format
 
