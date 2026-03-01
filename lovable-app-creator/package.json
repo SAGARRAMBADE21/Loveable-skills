@@ -1,0 +1,13 @@
+{
+    "name": "lovable-url-generator",
+    "version": "1.0.0",
+    "description": "MCP server that generates Lovable.dev build URLs for OpenClaw",
+    "type": "module",
+    "main": "mcp-server.js",
+    "scripts": {
+        "start": "node mcp-server.js"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0"
+    }
+}
